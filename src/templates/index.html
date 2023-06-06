@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<input type="text" id="connect_to" required>
+<button id="connect">Connect</button>
+
+<div id="chatbox">
+    <input type="text" id="message">
+    <button id="send">Send</button>
+</div>
+
+
+
+
+
+
+
+
+
+
+<!-- js scripts should only be imported in the body section after all the HTML -->
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+{% endblock %}
