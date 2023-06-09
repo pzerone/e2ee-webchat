@@ -83,27 +83,32 @@ def login():
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    if session.get('username', None) == None:
+        return redirect('/login')
+    else:
+        return render_template('index.html')
 
 
 user_sessions = {}
 
 @socketio.on('connect')
 def handle_connect():
+    print(f"{session.get('username', None)} Connected")
     user_sessions[session.get('username')] = request.sid
 
 
 @socketio.on('disconnect')
 def handle_disconnect():
+    print(f"{session.get('username', None)} Disconnected")
     user_sessions.pop(session.get('username'))
-
 
 @socketio.on('private_message')
 def private_message(payload):
-    recipient_session_id = user_sessions.get(payload.get('username'), None)
+    recipient_session_id = user_sessions.get(payload.get('recipient'), None)
     message = payload.get('message', None)
     if recipient_session_id != None and message != None:
-        emit('new_mesage', message, room=recipient_session_id)
+        payload['sender'] = list(user_sessions.keys())[list(user_sessions.values()).index(request.sid)]
+        emit('new_mesage', payload, room=recipient_session_id)
 
 if __name__ == '__main__':
     socketio.run(app, debug = False, host="0.0.0.0")

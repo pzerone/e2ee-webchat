@@ -1,3 +1,21 @@
-#chatbox {
-    display: none;
+body {
+    background-color: #dddddd;
+    font-family: sans-serif;
+    text-align: center;
+    text-decoration: none;
+}
+
+ul {
+    list-style-type: none;
+    align-items: center;
+}
+
+.chatbox {
+    height: 80vh;
+    margin: 1% 30%;
+    display: block;
+    align-items: center;
+    align-items: center;
+    background-color: whitesmoke;
+    overflow-y: scroll;
 }

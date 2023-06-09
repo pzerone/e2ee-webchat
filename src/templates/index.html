@@ -1,11 +1,16 @@
 {% extends 'base.html' %}
 
 {% block body %}
-<input type="text" id="connect_to" required>
-<button id="connect">Connect</button>
+<div id="landing" style="display: block;">
+    <input type="text" id="connect_to" placeholder="Enter username">
+    <button id="connect">Connect</button>
+</div>
 
-<div id="chatbox">
-    <input type="text" id="message">
+<div id="chatbox" class="chatbox" style="display: none">
+    <ul id="chat-messages"></ul>
+</div>
+<div id="sendbox" style="display: none;">
+    <input type="text" id="message" placeholder="Type a message">
     <button id="send">Send</button>
 </div>
 
