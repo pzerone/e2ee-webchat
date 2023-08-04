@@ -2,6 +2,7 @@ from flask import Flask, render_template, session, request
 from flask_socketio import SocketIO, emit
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask import Flask, render_template, request, redirect, flash
+from keygen import generateKeyPair
 import sqlite3
 
 app = Flask(__name__)
@@ -44,7 +45,10 @@ def signup():
             return redirect('/signup')
 
         # Insert new user into the database
-        cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, generate_password_hash(password)))
+        keyPair = generateKeyPair()
+        cursor.execute("INSERT INTO users (username, password, private_key, public_key) VALUES (?, ?, ?, ?)",
+        (username, generate_password_hash(password), keyPair[0], keyPair[1]))
+        
         conn.commit()
         conn.close()
 
@@ -111,4 +115,4 @@ def private_message(payload):
         emit('new_mesage', payload, room=recipient_session_id)
 
 if __name__ == '__main__':
-    socketio.run(app, debug = False, host="0.0.0.0")
+    socketio.run(app, debug = True)

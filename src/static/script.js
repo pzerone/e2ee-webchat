@@ -1,3 +1,4 @@
+// Establish a socket connection
 var socket = io();
 
 // Unhides the chatbox when the connect button is pressed and only if connect_to form is filled
