@@ -1,9 +1,7 @@
-from flask import Flask, render_template, session, request
+import sqlite3
+from flask import Flask, render_template, session, request, redirect, flash
 from flask_socketio import SocketIO, emit
 from werkzeug.security import check_password_hash, generate_password_hash
-from flask import Flask, render_template, request, redirect, flash
-from keygen import generateKeyPair
-import sqlite3
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'deadbeef'
@@ -18,6 +16,8 @@ cursor.execute('''
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL
+        private_key  TEXT NOT NULL
+        public_key   TEXT NOT NULL
     )
 ''')
 conn.commit()

@@ -1,6 +1,22 @@
 // Establish a socket connection
 var socket = io();
 
+//encrypt function
+function encryptMessage(message, publicKey) {
+    const crypt = new JSEncrypt();
+    crypt.setPublicKey(publicKey);
+    const encryptedMessage = crypt.encrypt(message);
+    return encryptedMessage;
+  }
+  
+//decrypt function
+function decryptMessage(encryptedMessage, privateKey) {
+    const crypt = new JSEncrypt();
+    crypt.setPrivateKey(privateKey);
+    const decryptedMessage = crypt.decrypt(encryptedMessage);
+    return decryptedMessage;
+  }
+
 // Unhides the chatbox when the connect button is pressed and only if connect_to form is filled
 document.getElementById('connect').onclick = function () {
     if (document.getElementById('connect_to').value === "") {
@@ -19,7 +35,13 @@ document.getElementById('connect').onclick = function () {
 document.getElementById('send').onclick = function () {
     var recipient = document.getElementById('connect_to').value;
     var private_message = document.getElementById('message').value;
-    socket.emit('private_message', { 'recipient': recipient, 'message': private_message });
+    // encrypt and create encrypted_private_message variable
+    // call func here
+    //here recipient public key is defined as recipientPublicKey
+    const encryptedMessage = encryptMessage(private_message, recipientPublicKey);
+
+    //send encryptedMessage instead of private_message
+    socket.emit('private_message', { 'recipient': recipient, 'message': encryptedMessage });
     let you = "You: "
     let finalMessage = you.concat(private_message)
     let ul = document.getElementById('chat-messages');
@@ -44,6 +66,10 @@ socket.on('new_mesage', function (payload) {
     let li = document.createElement('li');
     
     let message = payload['message']
+
+    // decrypt message here
+    const privateKey = localStorage.getItem(private_key);
+    const decryptedMessage = decryptMessage(encryptedMessage, privateKey);
     let sender = payload['sender']
     let finalMessage = sender.concat(": ", message)
     li.appendChild(document.createTextNode(finalMessage));
