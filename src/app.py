@@ -1,8 +1,15 @@
-from flask import Flask, render_template, session, request
+import sqlite3
+from flask import Flask, render_template, session, request, redirect, flash
 from flask_socketio import SocketIO, emit
 from werkzeug.security import check_password_hash, generate_password_hash
-from flask import Flask, render_template, request, redirect, flash
-import sqlite3
+from cryptography.hazmat.primitives.asymmetric import rsa
+
+private_key = rsa.generate_private_key(
+    public_exponent=65537,
+    key_size=2048
+)
+
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'deadbeef'
@@ -17,6 +24,8 @@ cursor.execute('''
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE NOT NULL,
         password TEXT NOT NULL
+        private_key  TEXT NOT NULL
+        public_key   TEXT NOT NULL
     )
 ''')
 conn.commit()
@@ -112,3 +121,4 @@ def private_message(payload):
 
 if __name__ == '__main__':
     socketio.run(app, debug = False, host="0.0.0.0")
+
