@@ -2,13 +2,6 @@ import sqlite3
 from flask import Flask, render_template, session, request, redirect, flash
 from flask_socketio import SocketIO, emit
 from werkzeug.security import check_password_hash, generate_password_hash
-from cryptography.hazmat.primitives.asymmetric import rsa
-
-private_key = rsa.generate_private_key(
-    public_exponent=65537,
-    key_size=2048
-)
-
 
 
 app = Flask(__name__)
