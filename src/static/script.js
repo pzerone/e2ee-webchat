@@ -15,7 +15,7 @@ if (!privatekey) {
 function encryptMessage(message, publicKey) {
     const crypt = new JSEncrypt();
     crypt.setPublicKey(publicKey);
-    const encryptedMessage = crypt.encrypt(message);
+    var encryptedMessage = crypt.encrypt(message);
     return encryptedMessage;
 }
 
@@ -23,7 +23,7 @@ function encryptMessage(message, publicKey) {
 function decryptMessage(encryptedMessage, privateKey) {
     const crypt = new JSEncrypt();
     crypt.setPrivateKey(privateKey);
-    const decryptedMessage = crypt.decrypt(encryptedMessage);
+    var decryptedMessage = crypt.decrypt(encryptedMessage);
     return decryptedMessage;
 }
 
@@ -91,8 +91,8 @@ document.getElementById('connect').onclick = function() {
         let message = payload['message']
 
         // decrypt message here
-        const privateKey = localStorage.getItem("private_key");
-        const decryptedMessage = decryptMessage(message, privateKey);
+        var privateKey = localStorage.getItem("private_key");
+        var decryptedMessage = decryptMessage(message, privateKey);
         let sender = payload['sender']
         let finalMessage = sender.concat(": ", decryptedMessage)
         li.appendChild(document.createTextNode(finalMessage));
