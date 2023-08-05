@@ -17,4 +17,5 @@ def generateKeyPair():
         encoding=serialization.Encoding.PEM,
         format=serialization.PublicFormat.SubjectPublicKeyInfo
         )
-    return pem_private_key, pem_public_key
+    pair = (pem_private_key.decode(), pem_public_key.decode())
+    return pair
