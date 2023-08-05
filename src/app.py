@@ -1,7 +1,8 @@
 import sqlite3
-from flask import Flask, render_template, session, request, redirect, flash
+from flask import Flask, render_template, session, request, redirect, flash, jsonify
 from flask_socketio import SocketIO, emit
 from werkzeug.security import check_password_hash, generate_password_hash
+from keygen import generateKeyPair
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'deadbeef'
@@ -15,8 +16,8 @@ cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL
-        private_key  TEXT NOT NULL
+        password TEXT NOT NULL,
+        private_key  TEXT NOT NULL,
         public_key   TEXT NOT NULL
     )
 ''')
@@ -69,6 +70,7 @@ def login():
 
         # Retrieve the hashed password for the given username
         user = cursor.execute("SELECT username, password FROM users WHERE username = ?", (username,)).fetchone()
+        conn.close()
 
         error = None
         if user is None:
@@ -93,8 +95,24 @@ def index():
         return render_template('index.html')
 
 
-user_sessions = {}
+@app.route('/getkey', methods=['GET', 'POST'])
+def getkey():
+    if request.method == 'POST':
+        username = request.form['reciepient']
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        pub_key = cursor.execute("SELECT public_key FROM users WHERE username = ?", (username,)).fetchone()
+        return jsonify({username: pub_key})
+    else:
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+        private_key = cursor.execute("SELECT private_key FROM users WHERE username = ?",
+            (session.get('username', None),)).fetchone()
+        conn.close()
+        return jsonify({"private_key": private_key[0]})
 
+
+user_sessions = {}
 @socketio.on('connect')
 def handle_connect():
     print(f"{session.get('username', None)} Connected")
