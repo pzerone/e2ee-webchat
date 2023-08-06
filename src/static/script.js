@@ -1,6 +1,6 @@
 var socket = io();
 
-const privatekey = localStorage.getItem("private_key");
+var privatekey = localStorage.getItem("private_key");
 if (!privatekey) {
     fetch('http://localhost:5000/getkey')
         .then(response => response.json())
