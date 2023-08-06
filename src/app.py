@@ -98,7 +98,8 @@ def index():
 @app.route('/getkey', methods=['GET', 'POST'])
 def getkey():
     if request.method == 'POST':
-        username = request.form['reciepient']
+        data = request.get_json()
+        username = data.get('recipient')
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
         pub_key = cursor.execute("SELECT public_key FROM users WHERE username = ?", (username,)).fetchone()
