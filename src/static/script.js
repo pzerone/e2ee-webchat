@@ -1,7 +1,9 @@
 var socket = io();
 var crypt = new JSEncrypt();
 var privatekey = localStorage.getItem("private_key");
-inactiveMgs = {}
+inactiveMgs = {};
+var users = [];
+
 
 //get private/public key from server
 function getkey(recipient = null) {
@@ -51,7 +53,7 @@ function decryptMessage(encryptedMessage, privateKey) {
   return decryptedMessage;
 }
 
-const userList = document.getElementById("userList");
+var userList = document.getElementById("userList");
 let selectedUserIndex = -1;
 
 socket.on("new_mesage", function (payload) {
@@ -87,8 +89,15 @@ function sendMessage() {
 }
 
 socket.on("new_mesage", function (payload) {
+  var sender = payload["sender"];
   var decryptedMessage = "";
-  if (payload["sender"] === activeUser) {
+  const listItem = document.createElement('li');
+    listItem.textContent = sender;
+    listItem.addEventListener('click', () => {
+        setSelectedUser(index);
+    });
+    userList.appendChild(listItem);
+  if (sender === activeUser) {
     if (privatekey != null) {
       decryptedMessage = decryptMessage(payload["message"], privatekey);
     } else {
@@ -101,21 +110,40 @@ socket.on("new_mesage", function (payload) {
       chatBox.classList.add("chat-box", "sent");
       chatMessages.appendChild(chatBox);
     }
-  }
-  else{
+  } else {
     if (privatekey != null) {
-        decryptedMessage = decryptMessage(payload["message"], privatekey);
-      } else {
-        getkey();
-        privatekey = localStorage.getItem("private_key");
-        decryptedMessage = decryptMessage(payload["message"], privatekey);
-      }
-      if(!(payload["sender"] in obj)){
-
-      }
+      decryptedMessage = decryptMessage(payload["message"], privatekey);
+    } else {
+      getkey();
+      privatekey = localStorage.getItem("private_key");
+      decryptedMessage = decryptMessage(payload["message"], privatekey);
+    }
+    if (!(sender in inactiveMgs)) {
+      inactiveMgs[sender] = [decryptedMessage];
+    } else {
+      inactiveMgs.sender.push(decryptedMessage);
+    }
   }
 });
 
+
+
+function setSelectedUser(index) {
+  // Remove selected class from the previous selected user
+  if (selectedUserIndex !== -1) {
+      userList.children[selectedUserIndex].classList.remove('selected');
+  }
+
+  // Set the selected class for the current selected user
+  userList.children[index].classList.add('selected');
+
+  // Update the selected user index
+  selectedUserIndex = index;
+
+  const activeUser = users[index];
+  chatUserName.textContent = activeUser;
+  chatMessages.innerHTML = ''; 
+}
 // Unhides the chatbox when the connect button is pressed and only if connect_to form is filled
 // document.getElementById('connect').onclick = function() {
 //     if (document.getElementById('connect_to').value === "") {
