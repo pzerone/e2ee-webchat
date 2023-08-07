@@ -1,54 +1,120 @@
 var socket = io();
 var crypt = new JSEncrypt();
 var privatekey = localStorage.getItem("private_key");
-
+inactiveMgs = {}
 
 //get private/public key from server
 function getkey(recipient = null) {
-    if (recipient === null) {
-        fetch('http://localhost:5000/getkey')
-            .then(response => response.json())
-            .then(jsonData => {
-                privatekey = jsonData["private_key"]
-                localStorage.setItem("private_key", privatekey)
-            })
-    } else {
-        fetch("http://localhost:5000/getkey", {
-                method: "POST",
-                body: JSON.stringify({
-                    "recipient": document.getElementById('connect_to').value
-                }),
-                headers: {
-                    "Content-type": "application/json; charset=UTF-8"
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(jsonResponse => {
-                recipientPublicKey = jsonResponse[document.getElementById('connect_to').value]
-                localStorage.setItem(document.getElementById('connect_to').value, recipientPublicKey);
-            });
-    }
+  if (recipient === null) {
+    fetch("http://localhost:5000/getkey")
+      .then((response) => response.json())
+      .then((jsonData) => {
+        privatekey = jsonData["private_key"];
+        localStorage.setItem("private_key", privatekey);
+      });
+  } else {
+    fetch("http://localhost:5000/getkey", {
+      method: "POST",
+      body: JSON.stringify({
+        recipient: document.getElementById("connect_to").value,
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((jsonResponse) => {
+        recipientPublicKey =
+          jsonResponse[document.getElementById("connect_to").value];
+        localStorage.setItem(
+          document.getElementById("connect_to").value,
+          recipientPublicKey
+        );
+      });
+  }
 }
 //encrypt function
 function encryptMessage(message, publicKey) {
-    crypt.setPublicKey(publicKey);
-    var encryptedMessage = crypt.encrypt(message);
-    return encryptedMessage;
+  crypt.setPublicKey(publicKey);
+  var encryptedMessage = crypt.encrypt(message);
+  return encryptedMessage;
 }
 //decrypt function
 function decryptMessage(encryptedMessage, privateKey) {
-    crypt.setPrivateKey(privateKey);
-    var decryptedMessage = crypt.decrypt(encryptedMessage);
-    return decryptedMessage;
+  crypt.setPrivateKey(privateKey);
+  var decryptedMessage = crypt.decrypt(encryptedMessage);
+  return decryptedMessage;
 }
 
+const userList = document.getElementById("userList");
+let selectedUserIndex = -1;
 
+socket.on("new_mesage", function (payload) {
+  // handle new mesages
+});
 
+function sendMessage() {
+  const message = messageInput.value;
+  if (message.trim() === "") return;
+  const activeUser = chatUserName.textContent;
+  if (activeUser === "E2EE Web Chat") return;
+  else {
+    const chatBox = document.createElement("div");
+    chatBox.textContent = message;
+    chatBox.classList.add("chat-box", "sent");
+    chatMessages.appendChild(chatBox);
+
+    var recipientPublicKey = localStorage.getItem(activeUser);
+    var encryptedMessage = "";
+    if (recipientPublicKey != null) {
+      encryptedMessage = encryptMessage(message, recipientPublicKey);
+    } else {
+      getkey(activeUser);
+      recipientPublicKey = localStorage.getItem(activeUser);
+      encryptedMessage = encryptMessage(message, recipientPublicKey);
+    }
+    socket.emit("private_message", {
+      recipient: activeUser,
+      message: encryptedMessage,
+    });
+  }
+  messageInput.value = "";
+}
+
+socket.on("new_mesage", function (payload) {
+  var decryptedMessage = "";
+  if (payload["sender"] === activeUser) {
+    if (privatekey != null) {
+      decryptedMessage = decryptMessage(payload["message"], privatekey);
+    } else {
+      getkey();
+      privatekey = localStorage.getItem("private_key");
+      decryptedMessage = decryptMessage(payload["message"], privatekey);
+
+      const chatBox = document.createElement("div");
+      chatBox.textContent = decryptedMessage;
+      chatBox.classList.add("chat-box", "sent");
+      chatMessages.appendChild(chatBox);
+    }
+  }
+  else{
+    if (privatekey != null) {
+        decryptedMessage = decryptMessage(payload["message"], privatekey);
+      } else {
+        getkey();
+        privatekey = localStorage.getItem("private_key");
+        decryptedMessage = decryptMessage(payload["message"], privatekey);
+      }
+      if(!(payload["sender"] in obj)){
+
+      }
+  }
+});
 
 // Unhides the chatbox when the connect button is pressed and only if connect_to form is filled
 // document.getElementById('connect').onclick = function() {
