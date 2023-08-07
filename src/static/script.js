@@ -1,7 +1,11 @@
 var socket = io();
 var crypt = new JSEncrypt();
+
 var privatekey = localStorage.getItem("private_key");
-inactiveMgs = {};
+var chatUserName = document.getElementById('chatUserName');
+var chatMessages = document.getElementById('chatMessages');
+var activeUser = chatUserName.textContent;
+var inactiveMgs = {};
 var users = [];
 
 
@@ -18,7 +22,7 @@ function getkey(recipient = null) {
     fetch("http://localhost:5000/getkey", {
       method: "POST",
       body: JSON.stringify({
-        recipient: document.getElementById("connect_to").value,
+        recipient: recipient,
       }),
       headers: {
         "Content-type": "application/json; charset=UTF-8",
@@ -32,11 +36,8 @@ function getkey(recipient = null) {
       })
       .then((jsonResponse) => {
         recipientPublicKey =
-          jsonResponse[document.getElementById("connect_to").value];
-        localStorage.setItem(
-          document.getElementById("connect_to").value,
-          recipientPublicKey
-        );
+          jsonResponse[recipient];
+        localStorage.setItem(recipient, recipientPublicKey);
       });
   }
 }
@@ -63,7 +64,6 @@ socket.on("new_mesage", function (payload) {
 function sendMessage() {
   const message = messageInput.value;
   if (message.trim() === "") return;
-  const activeUser = chatUserName.textContent;
   if (activeUser === "E2EE Web Chat") return;
   else {
     const chatBox = document.createElement("div");
@@ -91,12 +91,18 @@ function sendMessage() {
 socket.on("new_mesage", function (payload) {
   var sender = payload["sender"];
   var decryptedMessage = "";
-  const listItem = document.createElement('li');
-    listItem.textContent = sender;
+
+  users.push(sender)
+  users.forEach((user, index) => {
+    const listItem = document.createElement('li');
+    listItem.textContent = user;
     listItem.addEventListener('click', () => {
         setSelectedUser(index);
     });
     userList.appendChild(listItem);
+});
+
+
   if (sender === activeUser) {
     if (privatekey != null) {
       decryptedMessage = decryptMessage(payload["message"], privatekey);
@@ -140,10 +146,14 @@ function setSelectedUser(index) {
   // Update the selected user index
   selectedUserIndex = index;
 
-  const activeUser = users[index];
+  activeUser = users[index];
   chatUserName.textContent = activeUser;
   chatMessages.innerHTML = ''; 
-}
+};
+
+
+
+
 // Unhides the chatbox when the connect button is pressed and only if connect_to form is filled
 // document.getElementById('connect').onclick = function() {
 //     if (document.getElementById('connect_to').value === "") {

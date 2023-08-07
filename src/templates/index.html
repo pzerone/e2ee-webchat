@@ -1,25 +1,26 @@
 {% extends 'base.html' %}
 
 {% block body %}
-<div id="landing" style="display: block;">
-    <input type="text" id="connect_to" placeholder="Enter username">
-    <button id="connect">Connect</button>
+<div class="container">
+    <div class="sidebar">
+        <h2>Chat List</h2>
+        <ul id="userList">
+            <!-- User list will be populated dynamically using JavaScript -->
+        </ul>
+    </div>
+    <div class="chat">
+        <div class="chat-header">
+            <h2 id="chatUserName">E2EE web Chat</h2>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <!-- Chat messages will be populated dynamically using JavaScript -->
+        </div>
+        <div class="chat-input">
+            <input type="text" id="messageInput" placeholder="Type your message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
 </div>
-
-<div id="chatbox" class="chatbox" style="display: none">
-    <ul id="chat-messages"></ul>
-</div>
-<div id="sendbox" style="display: none;">
-    <input type="text" id="message" placeholder="Type a message">
-    <button id="send">Send</button>
-</div>
-
-
-
-
-
-
-
 
 
 
