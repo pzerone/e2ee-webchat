@@ -5,8 +5,8 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from keygen import generateKeyPair
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'deadbeef'
-socketio = SocketIO(app, logger=True, engineio_logger=True)
+app.config['SECRET_KEY'] = 'DEADBEEF'
+socketio = SocketIO(app, logger=False, engineio_logger=False)
 
 
 # SQLite database connection
@@ -116,13 +116,13 @@ def getkey():
 user_sessions = {}
 @socketio.on('connect')
 def handle_connect():
-    print(f"{session.get('username', None)} Connected")
+    # print(f"{session.get('username', None)} Connected")
     user_sessions[session.get('username')] = request.sid
 
 
 @socketio.on('disconnect')
 def handle_disconnect():
-    print(f"{session.get('username', None)} Disconnected")
+    # print(f"{session.get('username', None)} Disconnected")
     user_sessions.pop(session.get('username'))
 
 @socketio.on('private_message')
@@ -134,4 +134,4 @@ def private_message(payload):
         emit('new_mesage', payload, room=recipient_session_id)
 
 if __name__ == '__main__':
-    socketio.run(app, debug = True)
+    socketio.run(app, debug = False)
