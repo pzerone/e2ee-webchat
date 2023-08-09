@@ -5,13 +5,13 @@ Uses RSA asymmetric cryptography techniques to securely send messages between us
 
 # How to run
 Project uses flask as the backend. Python dependencies are managed using Pipenv. To install Pipenv:
-``` pip install pipenv ```
+`pip install pipenv`
 
 Once pipenv is installed, cd to the repo folder and:
-``` pipenv install ```
+`pipenv install`
 
 This will automagically setup a virtual environment and install needed dependencies for you.
-Once installation is complete, run the 'app.py' inside 'src' folder within the virual environment
+Once installation is complete, run the `app.py` inside `src` folder within the virual environment
 ```
 pipenv shell
 cd src
